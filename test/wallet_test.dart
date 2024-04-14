@@ -29,14 +29,14 @@ MockClient mock_it() {
   MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
   builder.addString(json.encode(payment_request()));
 
-  publish_message.publishData(builder.payload);
+  publish_message.publishData(builder.payload!);
 
   final message = MqttReceivedMessage("payment_requests/123", publish_message);
 
   publish_message = MqttPublishMessage();
   builder = MqttClientPayloadBuilder();
   builder.addString(File(CERTIFICATE).readAsStringSync());
-  publish_message.publishData(builder.payload);
+  publish_message.publishData(builder.payload!);
 
   final certMessage = MqttReceivedMessage("certificate", publish_message);
   final updates = mqtt_stream_controller.stream.asBroadcastStream();
@@ -47,7 +47,7 @@ MockClient mock_it() {
     .thenAnswer((_) {
         mqtt_stream_controller.add([message]);
         return null;
-    });
+    } as int Function(Invocation));
   when(client.subscribe('certificate', MqttQos.atLeastOnce))
     .thenAnswer((_) {
         mqtt_stream_controller.add([certMessage]);
@@ -58,7 +58,7 @@ MockClient mock_it() {
     .thenAnswer((_) {
         status.state = MqttConnectionState.connected;
         if (client.onConnected != null) {
-          client.onConnected();
+          client.onConnected!();
         }
         return Future.value(null);
     });
@@ -100,13 +100,13 @@ void main() {
 
   test("Parse url", () {
     final match =
-        MantaWallet.parseUrl("manta://localhost/JqhCQ64gTYi02xu4GhBzZg==");
+        MantaWallet.parseUrl("manta://localhost/JqhCQ64gTYi02xu4GhBzZg==")!;
     expect(match.group(1), equals('localhost'));
     expect(match.group(3), equals('JqhCQ64gTYi02xu4GhBzZg=='));
   });
 
   test("Parse url with port", () {
-    final match = MantaWallet.parseUrl("manta://127.0.0.1:8000/123");
+    final match = MantaWallet.parseUrl("manta://127.0.0.1:8000/123")!;
     expect(match.group(1), equals('127.0.0.1'));
     expect(match.group(2), equals('8000'));
     expect(match.group(3), equals('123'));
@@ -134,9 +134,9 @@ void main() {
     final helper = RsaKeyHelper();
     final pr = envelope.unpack();
 
-    expect(pr.merchant.name, equals('Merchant 1'));
-    expect(pr.destinations[0].amount, equals(Decimal.fromInt(5)));
-    expect(pr.destinations[0].destination_address, equals('btc_daddress'));
+    expect(pr.merchant!.name, equals('Merchant 1'));
+    expect(pr.destinations![0].amount, equals(Decimal.fromInt(5)));
+    expect(pr.destinations![0].destination_address, equals('btc_daddress'));
     expect(envelope.verify(helper.parsePublicKeyFromCertificateFile(CERTIFICATE)), true);
 });
 

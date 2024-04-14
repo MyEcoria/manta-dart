@@ -15,16 +15,16 @@ const PRIVATE_KEY = "test/certificates/root/keys/test.key";
 const CERTIFICATE = "test/certificates/root/certs/test.crt";
 
 class RemoteController {
-  int port;
-  String host;
-  HttpClient client;
+  late int port;
+  late String host;
+  late HttpClient client;
 
-  RemoteController(int port, [String host]) {
+  RemoteController(int port, [String? host]) {
     this.port = port;
     this.host = host ?? 'localhost';
     client = HttpClient();
   }
-  Future<String> send(String path, [Map data = null]) async {
+  Future<String> send(String path, [Map? data = null]) async {
     data ??=  Map();
     HttpClientRequest req = await client.post(host, port, path);
     req.write(jsonEncode(data));
@@ -39,8 +39,8 @@ class RemoteController {
 
 
 void main() {
-  MantaWallet wallet;
-  RemoteController store;
+  late MantaWallet wallet;
+  late RemoteController store;
   RemoteController payproc;
   setUp(() {
       wallet = MantaWallet('manta://localhost/123');
@@ -48,10 +48,10 @@ void main() {
       payproc = RemoteController(8092);
   });
   test("Connection", () async {
-      expect(wallet.client.connectionStatus.state,
+      expect(wallet.client.connectionStatus!.state,
         mqtt.MqttConnectionState.disconnected);
       await wallet.connect();
-      expect(wallet.client.connectionStatus.state,
+      expect(wallet.client.connectionStatus!.state,
         mqtt.MqttConnectionState.connected);
   });
   test("Get and verify PaymentRequest with local cert", () async {
@@ -59,9 +59,9 @@ void main() {
         {"amount": "10", "fiat": "EUR"});
       print("Res is '${res}'");
       var ack = AckMessage.fromJson(jsonDecode(res));
-      wallet = MantaWallet(ack.url);
+      wallet = MantaWallet(ack.url!);
       await wallet.connect();
-      expect(wallet.client.updates.isBroadcast, true);
+      expect(wallet.client.updates!.isBroadcast, true);
       var envelope = await wallet.getPaymentRequest(cryptoCurrency: 'NANO');
       final helper = RsaKeyHelper();
       expect(envelope.verify(helper.parsePublicKeyFromCertificateFile(CERTIFICATE)), true);
@@ -73,7 +73,7 @@ void main() {
         {"amount": "10", "fiat": "EUR"});
       print("Res is '${res}'");
       var ack = AckMessage.fromJson(jsonDecode(res));
-      wallet = MantaWallet(ack.url);
+      wallet = MantaWallet(ack.url!);
       var envelope = await wallet.getPaymentRequest(cryptoCurrency: 'NANO');
       var cert = await wallet.getCertificate(); 
       final helper = RsaKeyHelper();

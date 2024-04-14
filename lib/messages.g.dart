@@ -12,9 +12,9 @@ MerchantOrderRequestMessage _$MerchantOrderRequestMessageFromJson(
       amount: json['amount'] == null
           ? null
           : str_to_decimal(json['amount'] as String),
-      session_id: json['session_id'] as String,
-      fiat_currency: json['fiat_currency'] as String,
-      crypto_currency: json['crypto_currency'] as String);
+      session_id: json['session_id'] as String?,
+      fiat_currency: json['fiat_currency'] as String?,
+      crypto_currency: json['crypto_currency'] as String?);
 }
 
 Map<String, dynamic> _$MerchantOrderRequestMessageToJson(
@@ -29,15 +29,15 @@ Map<String, dynamic> _$MerchantOrderRequestMessageToJson(
 
 AckMessage _$AckMessageFromJson(Map<String, dynamic> json) {
   return AckMessage(
-      txid: json['txid'] as String,
-      status: json['status'] as String,
-      url: json['url'] as String,
+      txid: json['txid'] as String?,
+      status: json['status'] as String?,
+      url: json['url'] as String?,
       amount: json['amount'] == null
           ? null
           : str_to_decimal(json['amount'] as String),
-      transaction_hash: json['transaction_hash'] as String,
-      transaction_currency: json['transaction_currency'] as String,
-      memo: json['memo'] as String);
+      transaction_hash: json['transaction_hash'] as String?,
+      transaction_currency: json['transaction_currency'] as String?,
+      memo: json['memo'] as String?);
 }
 
 Map<String, dynamic> _$AckMessageToJson(AckMessage instance) =>
@@ -57,8 +57,8 @@ Destination _$DestinationFromJson(Map<String, dynamic> json) {
       amount: json['amount'] == null
           ? null
           : str_to_decimal(json['amount'] as String),
-      destination_address: json['destination_address'] as String,
-      crypto_currency: json['crypto_currency'] as String);
+      destination_address: json['destination_address'] as String?,
+      crypto_currency: json['crypto_currency'] as String?);
 }
 
 Map<String, dynamic> _$DestinationToJson(Destination instance) =>
@@ -71,7 +71,7 @@ Map<String, dynamic> _$DestinationToJson(Destination instance) =>
 
 Merchant _$MerchantFromJson(Map<String, dynamic> json) {
   return Merchant(
-      name: json['name'] as String, address: json['address'] as String);
+      name: json['name'] as String?, address: json['address'] as String?);
 }
 
 Map<String, dynamic> _$MerchantToJson(Merchant instance) =>
@@ -86,15 +86,15 @@ PaymentRequestMessage _$PaymentRequestMessageFromJson(
       amount: json['amount'] == null
           ? null
           : str_to_decimal(json['amount'] as String),
-      fiat_currency: json['fiat_currency'] as String,
-      destinations: (json['destinations'] as List)
+      fiat_currency: json['fiat_currency'] as String?,
+      destinations: (json['destinations'] as List?)
           ?.map((e) => e == null
               ? null
               : Destination.fromJson(e as Map<String, dynamic>))
-          ?.toList(),
-      supported_cryptos: (json['supported_cryptos'] as List)
+          .toList(),
+      supported_cryptos: (json['supported_cryptos'] as List?)
           ?.map((e) => e as String)
-          ?.toSet());
+          .toSet());
 }
 
 Map<String, dynamic> _$PaymentRequestMessageToJson(
@@ -111,9 +111,9 @@ Map<String, dynamic> _$PaymentRequestMessageToJson(
 PaymentRequestEnvelope _$PaymentRequestEnvelopeFromJson(
     Map<String, dynamic> json) {
   return PaymentRequestEnvelope(
-      message: json['message'] as String,
-      signature: json['signature'] as String,
-      version: json['version'] as String);
+      message: json['message'] as String?,
+      signature: json['signature'] as String?,
+      version: json['version'] as String?);
 }
 
 Map<String, dynamic> _$PaymentRequestEnvelopeToJson(
@@ -126,9 +126,9 @@ Map<String, dynamic> _$PaymentRequestEnvelopeToJson(
 
 PaymentMessage _$PaymentMessageFromJson(Map<String, dynamic> json) {
   return PaymentMessage(
-      crypto_currency: json['crypto_currency'] as String,
-      transaction_hash: json['transaction_hash'] as String,
-      version: json['version'] as String);
+      crypto_currency: json['crypto_currency'] as String?,
+      transaction_hash: json['transaction_hash'] as String?,
+      version: json['version'] as String?);
 }
 
 Map<String, dynamic> _$PaymentMessageToJson(PaymentMessage instance) =>

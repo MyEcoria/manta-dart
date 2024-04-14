@@ -16,17 +16,17 @@ class MantaConfiguration {
   final PublicKey rsaPublic;
   final RsaKeyHelper helper;
 
-  MqttClient client;
-  Map<String, dynamic> configuration;
+  late MqttClient client;
+  Map<String, dynamic>? configuration;
 
-  void Function(Map<String, dynamic>) configuration_callback;
+  void Function(Map<String, dynamic>?)? configuration_callback;
 
   MantaConfiguration(
-      {@required this.device_id,
-      @required this.rsaPrivate,
-      @required this.rsaPublic,
+      {required this.device_id,
+      required this.rsaPrivate,
+      required this.rsaPublic,
       String host = "localhost",
-      MqttClient mqtt_client = null,
+      MqttClient? mqtt_client = null,
       this.configuration_callback}) : helper = RsaKeyHelper()
   {
     client = (mqtt_client == null) ? MqttClient(host, device_id) : mqtt_client;
@@ -46,23 +46,23 @@ class MantaConfiguration {
     reconnect();
   }
 
-  Map<String, dynamic> decode_configuration(String message) {
+  Map<String, dynamic>? decode_configuration(String message) {
     configuration = json.decode(message);
 
-    if (configuration['application_token'] != "") {
-      configuration['application_token'] = helper.decrypt_from_b64(
-        configuration['application_token'], rsaPrivate);
+    if (configuration!['application_token'] != "") {
+      configuration!['application_token'] = helper.decrypt_from_b64(
+        configuration!['application_token'], rsaPrivate as RSAPrivateKey);
     }
 
     return configuration;
   }
 
   Future<bool> waitForConnection() async {
-    if (client.connectionStatus.state == MqttConnectionState.connected) {
+    if (client.connectionStatus!.state == MqttConnectionState.connected) {
       return true;
     }
-    if (client.connectionStatus.state == MqttConnectionState.connecting) {
-      while (client.connectionStatus.state != MqttConnectionState.connected) {
+    if (client.connectionStatus!.state == MqttConnectionState.connecting) {
+      while (client.connectionStatus!.state != MqttConnectionState.connected) {
         await Future.delayed(Duration(milliseconds: 100));
       }
       return true;
@@ -82,18 +82,18 @@ class MantaConfiguration {
 
     client.subscribe("configure/$device_id/configuration", MqttQos.atLeastOnce);
 
-    client.updates.listen((List<MqttReceivedMessage> c) {
+    client.updates!.listen((List<MqttReceivedMessage> c) {
       logger.info('Received new configuration');
 
       final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
       final String pt =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message!);
       logger.info(pt);
 
       configuration = decode_configuration(pt);
 
       if (configuration_callback != null) {
-        configuration_callback(configuration);
+        configuration_callback!(configuration);
       }
     });
   }
@@ -102,10 +102,10 @@ class MantaConfiguration {
     await waitForConnection();
 
     final MqttClientPayloadBuilder builder = new MqttClientPayloadBuilder();
-    builder.addString(helper.encodePublicKeyToPem(rsaPublic));
+    builder.addString(helper.encodePublicKeyToPem(rsaPublic as RSAPublicKey));
 
     client.publishMessage("configure/$device_id/link/$link_code",
-        MqttQos.atLeastOnce, builder.payload);
+        MqttQos.atLeastOnce, builder.payload!);
 
     logger.info('Published key');
   }
@@ -114,9 +114,9 @@ class MantaConfiguration {
     await connect();
     final helper = RsaKeyHelper();
     final MqttClientPayloadBuilder builder = new MqttClientPayloadBuilder();
-    builder.addString(helper.encodePublicKeyToPem(rsaPublic));
+    builder.addString(helper.encodePublicKeyToPem(rsaPublic as RSAPublicKey));
     client.publishMessage("test/",
-        MqttQos.atLeastOnce, builder.payload);
+        MqttQos.atLeastOnce, builder.payload!);
   }
 }
 

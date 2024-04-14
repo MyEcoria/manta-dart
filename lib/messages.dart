@@ -13,7 +13,7 @@ const HASHCODE_K = 37 * 17;
 
 Decimal str_to_decimal(String value) => Decimal.parse(value);
 
-String decimal_to_str(Decimal value) => value.toString();
+String decimal_to_str(Decimal? value) => value.toString();
 
 abstract class BaseMessage {
   bool _equalData(BaseMessage other) {
@@ -30,10 +30,10 @@ abstract class BaseMessage {
 @JsonSerializable()
 class MerchantOrderRequestMessage extends BaseMessage {
   @JsonKey(fromJson: str_to_decimal, toJson: decimal_to_str)
-  Decimal amount;
-  String session_id;
-  String fiat_currency;
-  String crypto_currency;
+  Decimal? amount;
+  String? session_id;
+  String? fiat_currency;
+  String? crypto_currency;
 
   MerchantOrderRequestMessage({
       this.amount,
@@ -59,15 +59,15 @@ class MerchantOrderRequestMessage extends BaseMessage {
 
 @JsonSerializable()
 class AckMessage extends BaseMessage {
-  String txid;
-  String status;
-  String url;
+  String? txid;
+  String? status;
+  String? url;
 
   @JsonKey(fromJson: str_to_decimal, toJson: decimal_to_str)
-  Decimal amount;
-  String transaction_hash;
-  String transaction_currency;
-  String memo;
+  Decimal? amount;
+  String? transaction_hash;
+  String? transaction_currency;
+  String? memo;
 
   AckMessage({
       this.txid,
@@ -97,10 +97,10 @@ class AckMessage extends BaseMessage {
 @JsonSerializable()
 class Destination extends BaseMessage {
   @JsonKey(fromJson: str_to_decimal, toJson: decimal_to_str)
-  Decimal amount;
+  Decimal? amount;
 
-  String destination_address;
-  String crypto_currency;
+  String? destination_address;
+  String? crypto_currency;
 
   Destination({
     this.amount,
@@ -125,8 +125,8 @@ class Destination extends BaseMessage {
 
 @JsonSerializable()
 class Merchant extends BaseMessage {
-  String name;
-  String address;
+  String? name;
+  String? address;
 
   Merchant({this.name, this.address});
 
@@ -147,14 +147,14 @@ class Merchant extends BaseMessage {
 
 @JsonSerializable()
 class PaymentRequestMessage extends BaseMessage {
-  Merchant merchant;
+  Merchant? merchant;
 
   @JsonKey(fromJson: str_to_decimal, toJson: decimal_to_str)
-  Decimal amount;
+  Decimal? amount;
 
-  String fiat_currency;
-  List<Destination> destinations;
-  Set<String> supported_cryptos;
+  String? fiat_currency;
+  List<Destination>? destinations;
+  Set<String>? supported_cryptos;
 
   factory PaymentRequestMessage.fromJson(Map<String, dynamic> json) =>
     _$PaymentRequestMessageFromJson(json);
@@ -189,9 +189,9 @@ class PaymentRequestMessage extends BaseMessage {
 
 @JsonSerializable()
 class PaymentRequestEnvelope extends BaseMessage {
-  String message;
-  String signature;
-  String version = MANTA_VERSION;
+  String? message;
+  String? signature;
+  String? version = MANTA_VERSION;
 
   PaymentRequestEnvelope(
       {this.message, this.signature, this.version = MANTA_VERSION});
@@ -212,19 +212,19 @@ class PaymentRequestEnvelope extends BaseMessage {
 
   bool verify(RSAPublicKey publicKey) {
     final helper = RsaKeyHelper();
-    return helper.verify(signature, message, publicKey);
+    return helper.verify(signature!, message!, publicKey);
   }
 
   PaymentRequestMessage unpack() {
-    return PaymentRequestMessage.fromJson(jsonDecode(this.message));
+    return PaymentRequestMessage.fromJson(jsonDecode(this.message!));
   }
 }
 
 @JsonSerializable()
 class PaymentMessage extends BaseMessage {
-  String crypto_currency;
-  String transaction_hash;
-  String version;
+  String? crypto_currency;
+  String? transaction_hash;
+  String? version;
 
   PaymentMessage({
       this.crypto_currency,

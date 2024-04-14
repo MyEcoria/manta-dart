@@ -21,19 +21,19 @@ MockClient mock_it() {
   final publish_message  = MqttPublishMessage();
   final MqttClientPayloadBuilder builder = new MqttClientPayloadBuilder();
   builder.addString(json.encode(ack));
-  publish_message.publishData(builder.payload);
+  publish_message.publishData(builder.payload!);
 
   final message = MqttReceivedMessage("acks/123", publish_message);
   when(client.updates).thenAnswer((_) => mqtt_stream_controller.stream.asBroadcastStream());
   when(client.publishMessage("merchant_order_request/application1", any, any)).thenAnswer( (_) {
     mqtt_stream_controller.add([message]);
     return null;
-  });
+  } as int Function(Invocation));
   when(client.connectionStatus).thenReturn(status);
   when(client.connect())
     .thenAnswer((_) {
         status.state = MqttConnectionState.connected;
-        client.onConnected();
+        client.onConnected!();
         return Future.value(null);
     });
   return client;
