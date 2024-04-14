@@ -76,17 +76,16 @@ class MantaWallet {
       } else {
         port = match.group(2) as int? ?? MQTT_DEFAULT_PORT;
       }
-      MantaWallet inst = MantaWallet._internal(
+      return MantaWallet._internal(
         session_id: match.group(3),
         host: host,
         port: port,
         mqtt_client: mqtt_client,
         useWebSocket: useWebSocket,
         autoReconnect: autoReconnect);
-      inst.client.useAlternateWebSocketImplementation = false;
-      return inst;
     }
-    return null;
+    // Gérer le cas où `match` est null
+    throw ArgumentError('Invalid URL: $url');
   }
 
   Stream<AckMessage> _ackStream(String topic) {
@@ -124,17 +123,17 @@ class MantaWallet {
 
   void connect() async {
     if (client.connectionStatus!.state == mqtt.MqttConnectionState.connected) return;
-    if (client.connectionStatus!.state == mqtt.MqttConnectionState.connecting) {
-      await waitForConnection();
-      return;
-    }
+    // if (client.connectionStatus!.state == mqtt.MqttConnectionState.connecting) {
+    //   await waitForConnection();
+    //   return;
+    // }
 
     try {
       client.useWebSocket = useWebSocket;
       await client.connect();
     } catch (e) {
       logger.warning("Client exception - $e");
-      if (autoReconnect) await reconnect();
+      // if (autoReconnect) await reconnect();
     }
   }
 
@@ -142,7 +141,7 @@ class MantaWallet {
     logger.info('Waiting $RECONNECT_INTERVAL seconds');
     sleep(Duration(seconds: RECONNECT_INTERVAL));
     logger.info('Reconnecting');
-    await connect();
+    // await connect();
   }
 
   void onConnected() {
@@ -174,7 +173,7 @@ class MantaWallet {
   }
 
   Future<RSAPublicKey> getCertificate({Duration timeout = const Duration(seconds: 5)}) async {
-    await connect();
+    // await connect();
     if (!certificate.isCompleted && !_gettingCert) {
       _gettingCert = true;
       try {
@@ -190,7 +189,7 @@ class MantaWallet {
 
   Future<PaymentRequestEnvelope> getPaymentRequest(
       {String cryptoCurrency = "all", Duration timeout = const Duration(seconds: 5)}) async {
-    await connect();
+    // await connect();
 
     final mqtt.MqttClientPayloadBuilder builder = new mqtt.MqttClientPayloadBuilder();
     builder.addString("");
@@ -206,7 +205,7 @@ class MantaWallet {
 
   void sendPayment({required String transactionHash,
       required String cryptoCurrency}) async {
-    await connect();
+    // await connect();
     final message = PaymentMessage(
         transaction_hash: transactionHash, crypto_currency: cryptoCurrency);
     final mqtt.MqttClientPayloadBuilder builder = new mqtt.MqttClientPayloadBuilder();
