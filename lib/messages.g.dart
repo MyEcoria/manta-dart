@@ -88,9 +88,7 @@ PaymentRequestMessage _$PaymentRequestMessageFromJson(
           : str_to_decimal(json['amount'] as String),
       fiat_currency: json['fiat_currency'] as String?,
       destinations: (json['destinations'] as List?)
-          ?.map((e) => e == null
-              ? null
-              : Destination.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => e == Destination.fromJson(e as Map<String, dynamic>))
           .toList(),
       supported_cryptos: (json['supported_cryptos'] as List?)
           ?.map((e) => e as String)
